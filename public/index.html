@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Divertory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#12151b;
+--surface:#181d25;
+--surface2:#212836;
+--border:#2a3140;
+--text:#e8ebf1;
+--muted:#8892a3;
+--accent:#e8912d;
+--accent-ink:#1c1305;
+--cyan:#35b6c9;
+--ok:#35c48a;
+--alert:#ef5a6f;
+--multi:#9d7bea;
+}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;font-size:15px}
+header{background:var(--surface);padding:20px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
+header h1{font-size:1.2rem;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.container{max-width:1440px;margin:0 auto;padding:24px}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:20px}
+.box h3{color:var(--text);font-size:0.92rem;font-weight:600;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+textarea{width:100%;height:160px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:12px;font-size:0.82rem;font-family:'JetBrains Mono',monospace;resize:vertical}
+textarea:focus,select:focus,input:focus{outline:none;border-color:var(--accent)}
+.cfg{display:none}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+label{display:block;font-size:0.76rem;color:var(--muted);margin-bottom:6px;font-weight:500}
+select,input[type=number],input[type=text],input[type=password]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:0.84rem;font-family:inherit}
+.btn{padding:9px 18px;border:none;border-radius:6px;cursor:pointer;font-size:0.84rem;font-weight:600;margin:3px 6px 3px 0;transition:filter .15s,background .15s}
+.btn-sm{padding:4px 10px;font-size:0.72rem;margin:0}
+.bp{background:var(--accent);color:var(--accent-ink)}
+.bp:hover{filter:brightness(1.08)}
+.bs{background:transparent;color:var(--text);border:1px solid var(--border)}
+.bs:hover{background:var(--surface2)}
+.sb{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 16px;margin-bottom:20px;display:none;align-items:center;gap:10px;font-size:0.84rem;color:var(--muted)}
+.sb.on{display:flex}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);flex-shrink:0;box-shadow:0 0 0 3px rgba(53,196,138,.18)}
+.tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.tb{padding:11px 18px;border:none;background:transparent;color:var(--muted);font-size:0.84rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tb:hover{color:var(--text)}
+.tb.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.tp{display:none;padding-top:20px}
+.tp.on{display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:20px}
+.card h3{color:var(--text);margin-bottom:14px;font-size:0.88rem;font-weight:600}
+.cw{position:relative;height:360px}
+.tw{overflow:auto;max-height:420px;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:0.82rem}
+th{padding:10px 12px;text-align:left;color:var(--muted);font-weight:600;white-space:nowrap;font-size:0.72rem;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;border-left:3px solid var(--accent)}
+.sl{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:500}
+.sv{font-size:1.6rem;font-weight:700;color:var(--text);margin-top:6px;font-family:'JetBrains Mono',monospace}
+.ss{font-size:0.74rem;color:var(--muted);margin-top:3px}
+.hidden{display:none!important}
+.ib{background:rgba(53,182,201,.08);border-radius:6px;padding:10px 14px;font-size:0.82rem;color:var(--muted);margin-bottom:14px;border-left:3px solid var(--cyan)}
+.fr{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end}
+.fi{flex:1;min-width:130px}
+.b2{background:rgba(53,196,138,.15);color:var(--ok);padding:2px 8px;border-radius:5px;font-size:0.72rem;font-weight:600;display:inline-block;font-family:'JetBrains Mono',monospace}
+.b3{background:rgba(232,145,45,.15);color:var(--accent);padding:2px 8px;border-radius:5px;font-size:0.72rem;font-weight:600;display:inline-block;font-family:'JetBrains Mono',monospace}
+.b4{background:rgba(239,90,111,.15);color:var(--alert);padding:2px 8px;border-radius:5px;font-size:0.72rem;font-weight:600;display:inline-block;font-family:'JetBrains Mono',monospace}
+.b5{background:rgba(157,123,234,.15);color:var(--multi);padding:2px 8px;border-radius:5px;font-size:0.72rem;font-weight:600;display:inline-block;font-family:'JetBrains Mono',monospace}
+.divbox{display:flex;flex-wrap:wrap;gap:6px;max-height:100px;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:8px}
+.divchip{display:flex;align-items:center;gap:5px;font-size:0.74rem;color:var(--text);background:var(--surface2);padding:4px 9px;border-radius:5px;cursor:pointer;white-space:nowrap;font-family:'JetBrains Mono',monospace;border:1px solid var(--border)}
+.divchip.off{color:var(--muted);opacity:.5}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
+</style>
+</head>
+<body>
+<header>
+<div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;flex-shrink:0">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8912d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="12" r="2" fill="#e8912d" stroke="none"/><path d="M6 12h5"/><path d="M13 12l6-6"/><path d="M13 12l6 6"/></svg>
+</div>
+<div>
+<h1>Statistiky Divertorov</h1>
+<div style="font-size:0.76rem;color:var(--muted);margin-top:2px">Analyza prechodov bedien cez divertory</div>
+</div>
+</header>
+<div class="container">
+<div class="box">
+<h3>Vlozit data</h3>
+<div class="ib">Bud nahrajte subor (.xlsx / .xls / .csv), alebo v Exceli oznacte data vratane hlavicky, Ctrl+C a Ctrl+V do pola nizsie. Ocakavane stlpce: ciarovy kod, divertor/stanica, cas prujezdu.</div>
+<textarea id="ta" placeholder="Vlozte data tu (Ctrl+V)..."></textarea>
+<div style="margin-top:10px;display:flex;align-items:center;flex-wrap:wrap;gap:6px">
+<button class="btn bp" onclick="processPaste()">Spracovat vlozene data</button>
+<label class="btn bs" style="display:inline-flex;align-items:center;cursor:pointer;margin:3px 6px 3px 0">Nahrat subor (Excel/CSV)<input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="processFile(event)"></label>
+<button class="btn bs" onclick="loadDemo()">Ukazkove data</button>
+<button class="btn bs" onclick="clearAll()">Vymazat</button>
+<span id="fName" style="font-size:0.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace"></span>
+</div>
+</div>
+<div class="box" id="shBox">
+<h3>Zdielane datasety (server)</h3>
+<div id="shLogin" class="hidden">
+<div class="ib">Ulozene datasety su spolocne pre vsetkych s heslom. Bez prihlasenia funguje analyza len lokalne v tomto prehliadaci.</div>
+<div class="fr" style="margin-bottom:0"><div class="fi" style="max-width:320px"><label>Heslo</label><input type="password" id="shPw" autocomplete="current-password" onkeydown="if(event.key==='Enter')shLogin()"></div><button class="btn bp" onclick="shLogin()">Prihlasit</button></div>
+</div>
+<div id="shMain" class="hidden">
+<div class="fr"><div class="fi" style="max-width:420px"><label>Nazov datasetu</label><input type="text" id="shName" maxlength="80" placeholder="napr. SKLC3 tyzden 40"></div><button class="btn bp" id="shSaveBtn" onclick="shSave()">Ulozit aktualne data na server</button><button class="btn bs" onclick="shRefresh()">Obnovit zoznam</button><button class="btn bs" onclick="shLogout()">Odhlasit</button></div>
+<div class="tw" style="max-height:260px"><table><thead><tr><th>Nazov</th><th>Riadkov</th><th>Velkost</th><th>Ulozene</th><th></th></tr></thead><tbody id="shList"></tbody></table></div>
+</div>
+<div id="shMsg" style="font-size:0.8rem;color:var(--muted);margin-top:10px"></div>
+</div>
+<div class="box cfg" id="cfg">
+<h3>Priradenie stlpcov</h3>
+<div class="g3">
+<div><label>Ciarovy kod</label><select id="cB"></select></div>
+<div><label>Divertor</label><select id="cD"></select></div>
+<div><label>Cas prujezdu</label><select id="cT"></select></div>
+</div>
+<button class="btn bp" onclick="runAnalysis()">Spustit analyzu</button>
+</div>
+<div class="sb" id="sb"><div class="dot"></div><span id="st"></span></div>
+<div id="res" class="hidden">
+<div class="sg" id="sg"></div>
+<div class="tabs">
+<button class="tb on" onclick="sw('t1',this)">Prechody za hodinu</button>
+<button class="tb" onclick="sw('t2',this)">Viacnasobne 1h</button>
+<button class="tb" onclick="sw('t3',this)">Viacnasobne 2h</button>
+<button class="tb" onclick="sw('t4',this)">Detail</button>
+<button class="tb" onclick="sw('t5',this)">Export</button>
+</div>
+<div class="tp on" id="t1">
+<div class="card">
+<h3>Pocet prechodov za hodinu</h3>
+<div class="fr">
+<div class="fi" style="flex:2;min-width:280px"><label>Divertory <span id="f1dCount" style="color:var(--muted);font-weight:400"></span></label><input type="text" id="f1dSearch" placeholder="Hladat divertor..." oninput="filterDivChips()" style="margin-bottom:6px"><div id="f1dBox" class="divbox"></div><div style="margin-top:6px;display:flex;align-items:center;flex-wrap:wrap;gap:6px"><button class="btn bs btn-sm" onclick="selAllDiv(true)">Vybrat vsetky</button><button class="btn bs btn-sm" onclick="selAllDiv(false)">Zrusit vsetky</button><span style="color:var(--muted);font-size:0.72rem">|</span><button class="btn bs btn-sm" onclick="selTopDiv(+document.getElementById('topN').value)">Top</button><input type="number" id="topN" value="10" min="1" style="width:56px;padding:4px 6px;font-size:0.72rem"><span style="color:var(--muted);font-size:0.72rem">najaktivnejsich</span></div></div>
+<div class="fi" style="max-width:170px"><label>Poslednych N hodin</label><input type="number" id="f1h" value="0" min="0" onchange="rT1()"></div>
+<div class="fi" style="max-width:220px"><label>&nbsp;</label><label style="display:flex;align-items:center;gap:6px;color:var(--text);font-size:0.82rem;font-weight:400;cursor:pointer;padding:8px 0"><input type="checkbox" id="f1dLabels" onchange="rT1()" style="width:auto;accent-color:#e8912d">Zobrazit cisla pri bodoch</label></div>
+</div>
+<div class="cw"><canvas id="chH"></canvas></div>
+</div>
+<div class="card"><h3>Tabulka prechodov za hodinu</h3><div class="tw" id="tH"></div></div>
+</div>
+<div class="tp" id="t2">
+<div class="card">
+<h3>Viacnasobne vyskyty - 1 hodina</h3>
+<div class="fr">
+<div class="fi"><label>Divertor</label><select id="f2d" onchange="rT2()"><option value="ALL">Vsetky</option></select></div>
+<div class="fi"><label>Min. vyskytov</label><select id="f2m" onchange="rT2()"><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></div>
+</div>
+<div class="cw"><canvas id="chM1"></canvas></div>
+</div>
+<div class="card"><h3>Tabulka 1h</h3><div class="tw" id="tM1"></div></div>
+</div>
+<div class="tp" id="t3">
+<div class="card">
+<h3>Viacnasobne vyskyty - 2 hodiny</h3>
+<div class="fr">
+<div class="fi"><label>Divertor</label><select id="f3d" onchange="rT3()"><option value="ALL">Vsetky</option></select></div>
+<div class="fi"><label>Min. vyskytov</label><select id="f3m" onchange="rT3()"><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option></select></div>
+</div>
+<div class="cw"><canvas id="chM2"></canvas></div>
+</div>
+<div class="card"><h3>Tabulka 2h</h3><div class="tw" id="tM2"></div></div>
+</div>
+<div class="tp" id="t4">
+<div class="card">
+<h3>Surove data</h3>
+<div class="fr">
+<div class="fi"><label>Hladat kod</label><input type="text" id="f4s" placeholder="Zadajte kod..." oninput="rT4()"></div>
+<div class="fi"><label>Divertor</label><select id="f4d" onchange="rT4()"><option value="ALL">Vsetky</option></select></div>
+<div class="fi"><label>Max riadkov</label><select id="f4l" onchange="rT4()"><option value="100">100</option><option value="500">500</option><option value="1000">1000</option><option value="99999">Vsetky</option></select></div>
+</div>
+<div class="tw" id="tD"></div>
+</div>
+</div>
+<div class="tp" id="t5">
+<div class="card">
+<h3>Export do CSV</h3>
+<button class="btn bp" onclick="expCSV('hourly')">Prechody za hodinu</button>
+<button class="btn bp" onclick="expCSV('m1h')">Viacnasobne 1h</button>
+<button class="btn bp" onclick="expCSV('m2h')">Viacnasobne 2h</button>
+<button class="btn bs" onclick="expCSV('raw')">Surovne data</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+var rD=[],hdr=[],pD=[],AR=null,CH={};
+var CL=['#e8912d','#35b6c9','#35c48a','#ef5a6f','#9d7bea','#f2c94c','#5eead4','#fb923c','#60a5fa','#f472b6'];
+if(typeof ChartDataLabels!=='undefined'){Chart.register(ChartDataLabels);Chart.defaults.set('plugins.datalabels',{display:false});}
+function processPaste(){var t=document.getElementById('ta').value.trim();if(!t){alert('Najprv vlozde data!');return;}var lines=t.split('\n').filter(function(l){return l.trim()!=='';});parseArray(lines.map(function(l){return l.split('\t').map(function(c){return c.trim();});}));}
+function processFile(e){
+var file=e.target.files[0];
+if(!file)return;
+document.getElementById('fName').textContent=file.name;
+var isCsv=/\.csv$/i.test(file.name);
+var reader=new FileReader();
+reader.onerror=function(){alert('Subor sa nepodarilo precitat.');};
+reader.onload=function(ev){
+try{
+var wb;
+if(isCsv){
+wb=XLSX.read(ev.target.result,{type:'string'});
+}else{
+wb=XLSX.read(new Uint8Array(ev.target.result),{type:'array'});
+}
+var ws=wb.Sheets[wb.SheetNames[0]];
+var arr=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,defval:'',dateNF:'dd.mm.yyyy hh:mm:ss'});
+var lines=arr.filter(function(r){return r.some(function(c){return String(c||'').trim()!=='';});});
+if(lines.length<2){alert('Subor neobsahuje pouzitelne data (aspon hlavicka + 1 riadok).');return;}
+document.getElementById('ta').value='';
+parseArray(lines.map(function(r){return r.map(function(c){return String(c==null?'':c).trim();});}));
+}catch(err){
+alert('Chyba pri citani suboru: '+err.message);
+}
+};
+if(isCsv)reader.readAsText(file,'UTF-8');else reader.readAsArrayBuffer(file);
+}
+function parseArray(arr){if(arr.length<2){alert('Musia byt aspon 2 riadky.');return;}hdr=arr[0].map(function(h){return String(h||'').trim();});rD=arr.slice(1).filter(function(r){return r.some(function(c){return c!==''&&c!=null;});});setupCols();}
+function setupCols(){['cB','cD','cT'].forEach(function(id){var s=document.getElementById(id);s.innerHTML='';hdr.forEach(function(h,i){var o=document.createElement('option');o.value=i;o.text='['+i+'] '+h;s.appendChild(o);});});ad('cB',['ciarovy','barcode','kod','bedna','code','scan']);ad('cD',['stanice','cidlo','divertor','station','sensor']);ad('cT',['cas','time','datum','date','prujezd','pruchod']);document.getElementById('cfg').style.display='block';setSt('Nacitanych '+rD.length.toLocaleString()+' riadkov. Skontrolujte stlpce a kliknite Spustit analyzu.');}
+function ad(id,kw){var s=document.getElementById(id);for(var i=0;i<hdr.length;i++){var hl=hdr[i].toLowerCase();for(var j=0;j<kw.length;j++){if(hl.indexOf(kw[j])>=0){s.value=i;return;}}}}
+function pDT(str){if(!str)return null;str=String(str).trim();var m=str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})/);if(m)return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+m[6]);m=str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})\s+(\d{1,2}):(\d{2})/);if(m)return new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5],0);m=str.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6]);m=str.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);if(m)return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],0);if(/^\d{5}(\.\d+)?$/.test(str)){var n=parseFloat(str);if(n>40000&&n<60000)return new Date(Date.UTC(1899,11,30)+n*86400000);}var fb=new Date(str);return isNaN(fb)?null:fb;}
+function fDT(dt){if(!dt)return '';return pad(dt.getDate())+'.'+pad(dt.getMonth()+1)+'.'+dt.getFullYear()+' '+pad(dt.getHours())+':'+pad(dt.getMinutes())+':'+pad(dt.getSeconds());}
+function pad(n){return String(n).padStart(2,'0');}
+function hKey(dt){return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())+' '+pad(dt.getHours())+':00';}
+function runAnalysis(){var cB=+document.getElementById('cB').value;var cD=+document.getElementById('cD').value;var cT=+document.getElementById('cT').value;pD=[];var err=0;for(var i=0;i<rD.length;i++){var row=rD[i];var bc=String(row[cB]||'').trim();var dv=String(row[cD]||'').trim();var tr=String(row[cT]||'').trim();if(!bc||!dv||!tr)continue;var ts=pDT(tr);if(!ts||isNaN(ts)){err++;continue;}pD.push({bc:bc,dv:dv,ts:ts});}if(pD.length===0){alert('Ziadne platne zaznamy! Chyby: '+err);return;}pD.sort(function(a,b){return a.ts-b.ts;});AR={hy:calcHy(pD),m1:calcMu(pD,3600000),m2:calcMu(pD,7200000)};var dvs=[...new Set(pD.map(function(d){return d.dv;}))].sort();fillSel(dvs);renderSum(dvs,err);rT1();rT2();rT3();rT4();document.getElementById('res').classList.remove('hidden');setSt('Hotovo! '+pD.length.toLocaleString()+' zaznamov | '+dvs.length+' divertorov | Chyby: '+err);}
+function calcHy(data){var r={};for(var i=0;i<data.length;i++){var x=data[i];var k=hKey(x.ts);if(!r[x.dv])r[x.dv]={};r[x.dv][k]=(r[x.dv][k]||0)+1;}return r;}
+function calcMu(data,wMs){var bd={};for(var i=0;i<data.length;i++){var x=data[i];if(!bd[x.dv])bd[x.dv]={};if(!bd[x.dv][x.bc])bd[x.dv][x.bc]=[];bd[x.dv][x.bc].push(x.ts.getTime());}var res=[];var divs=Object.keys(bd);for(var i=0;i<divs.length;i++){var dv=divs[i];var bcs=Object.keys(bd[dv]);for(var j=0;j<bcs.length;j++){var bc=bcs[j];var times=bd[dv][bc].sort(function(a,b){return a-b;});if(times.length<2)continue;var mx=1,bs=times[0],l=0;for(var r=1;r<times.length;r++){while(times[r]-times[l]>wMs)l++;var c=r-l+1;if(c>mx){mx=c;bs=times[l];}}if(mx>=2)res.push({bc:bc,dv:dv,mx:mx,ws:new Date(bs),we:new Date(bs+wMs),tot:times.length});}}return res.sort(function(a,b){return b.mx-a.mx;});}
+function fillSel(dvs){['f2d','f3d','f4d'].forEach(function(id){var s=document.getElementById(id);s.innerHTML='<option value="ALL">Vsetky</option>';dvs.forEach(function(d){var o=document.createElement('option');o.value=d;o.text=d;s.appendChild(o);});});document.getElementById('f1dSearch').value='';var box=document.getElementById('f1dBox');box.innerHTML='';dvs.forEach(function(d){var lab=document.createElement('label');lab.className='divchip';lab.dataset.name=d.toLowerCase();var cb=document.createElement('input');cb.type='checkbox';cb.checked=true;cb.value=d;cb.className='f1dcb';cb.style.accentColor='#e8912d';cb.onchange=function(){lab.classList.toggle('off',!cb.checked);rT1();updateDivCount();};lab.appendChild(cb);lab.appendChild(document.createTextNode(d));box.appendChild(lab);});updateDivCount();}
+function selAllDiv(v){document.querySelectorAll('.f1dcb').forEach(function(cb){cb.checked=v;cb.closest('label').classList.toggle('off',!v);});rT1();updateDivCount();}
+function selTopDiv(n){if(!AR||!n||n<1)return;var totals=Object.keys(AR.hy).map(function(d){var sum=0;Object.keys(AR.hy[d]).forEach(function(h){sum+=AR.hy[d][h];});return{d:d,sum:sum};});totals.sort(function(a,b){return b.sum-a.sum;});var top={};totals.slice(0,n).forEach(function(t){top[t.d]=true;});document.querySelectorAll('.f1dcb').forEach(function(cb){var on=!!top[cb.value];cb.checked=on;cb.closest('label').classList.toggle('off',!on);});rT1();updateDivCount();}
+function filterDivChips(){var q=document.getElementById('f1dSearch').value.trim().toLowerCase();document.querySelectorAll('.divchip').forEach(function(lab){lab.style.display=(!q||lab.dataset.name.indexOf(q)>=0)?'flex':'none';});}
+function updateDivCount(){var all=document.querySelectorAll('.f1dcb');var on=document.querySelectorAll('.f1dcb:checked');document.getElementById('f1dCount').textContent='('+on.length+' / '+all.length+' zobrazenych)';}
+function renderSum(dvs,err){var mn=pD[0].ts,mx=pD[pD.length-1].ts;var hrs=Math.max(1,Math.round((mx-mn)/3600000));document.getElementById('sg').innerHTML=mksc('Celkom zaznamov',pD.length.toLocaleString())+mksc('Unikatnych bedni',new Set(pD.map(function(d){return d.bc;})).size.toLocaleString())+mksc('Divertorov',dvs.length)+mksc('Casovy rozsah',hrs+'h',fDT(mn)+' - '+fDT(mx))+mksc('Chyby',err);}
+function mksc(l,v,s){return '<div class="sc"><div class="sl">'+l+'</div><div class="sv">'+v+'</div>'+(s?'<div class="ss">'+s+'</div>':'')+'</div>';}
+function sw(id,btn){document.querySelectorAll('.tp').forEach(function(p){p.classList.remove('on');});document.querySelectorAll('.tb').forEach(function(b){b.classList.remove('on');});document.getElementById(id).classList.add('on');btn.classList.add('on');}
+function setSt(msg){document.getElementById('st').textContent=msg;document.getElementById('sb').classList.add('on');}
+function clearAll(){document.getElementById('ta').value='';document.getElementById('fileInput').value='';document.getElementById('fName').textContent='';document.getElementById('cfg').style.display='none';document.getElementById('res').classList.add('hidden');document.getElementById('sb').classList.remove('on');rD=[];hdr=[];pD=[];AR=null;}
+function dC(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
+function rT1(){
+if(!AR)return;
+var nh=+document.getElementById('f1h').value;
+var dvs=Array.prototype.slice.call(document.querySelectorAll('.f1dcb:checked')).map(function(cb){return cb.value;});
+var allH=new Set();
+dvs.forEach(function(d){Object.keys(AR.hy[d]||{}).forEach(function(h){allH.add(h);});});
+var hours=[...allH].sort();
+if(nh>0)hours=hours.slice(-nh);
+dC('chH');
+CH['chH']=new Chart(document.getElementById('chH').getContext('2d'),{
+type:'line',
+data:{
+labels:hours,
+datasets:dvs.map(function(d,i){
+return{
+label:d,
+data:hours.map(function(h){return(AR.hy[d]||{})[h]||0;}),
+borderColor:CL[i%CL.length],
+backgroundColor:CL[i%CL.length]+'33',
+tension:0.3,fill:false,pointRadius:3
+};
+}).concat([{
+label:'Ocakavany vykon (1550)',
+data:hours.map(function(){return 1550;}),
+borderColor:'#ef5a6f',
+backgroundColor:'#ef5a6f',
+borderDash:[8,5],
+borderWidth:2,
+pointRadius:0,
+pointHitRadius:6,
+tension:0,
+fill:false,
+order:-1,
+datalabels:{display:false}
+}])
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+interaction:{mode:'index',intersect:false},
+plugins:{
+legend:{
+labels:{color:'#e8ebf1'},
+onClick:function(evt,item,legend){
+var label=item.text;
+var cbs=document.querySelectorAll('.f1dcb');
+for(var i=0;i<cbs.length;i++){
+if(cbs[i].value===label){
+cbs[i].checked=false;
+cbs[i].closest('label').classList.add('off');
+setTimeout(function(){cbs[i].dispatchEvent(new Event('change'));},0);
+return;
+}
+}
+var chart=legend.chart;
+var meta=chart.getDatasetMeta(item.datasetIndex);
+meta.hidden=meta.hidden===null?!chart.data.datasets[item.datasetIndex].hidden:!meta.hidden;
+chart.update();
+}
+},
+tooltip:{
+mode:'index',
+intersect:false,
+itemSort:function(a,b){return b.parsed.y-a.parsed.y;}
+},
+datalabels:{
+display:function(ctx){if(!document.getElementById('f1dLabels').checked)return false;var v=ctx.dataset.data[ctx.dataIndex];return v>0;},
+color:'#e8ebf1',
+font:{size:9,weight:'600'},
+align:'top',
+offset:2,
+formatter:function(v){return v;}
+}
+},
+scales:{
+x:{ticks:{color:'#8892a3',maxRotation:45},grid:{color:'#232a37'}},
+y:{ticks:{color:'#8892a3'},grid:{color:'#232a37'},beginAtZero:true}
+}
+}
+});
+var h='<table><thead><tr><th>Hodina</th>'+dvs.map(function(d){return'<th>'+d+'</th>';}).join('')+'<th>Spolu</th></tr></thead><tbody>';
+hours.forEach(function(hr){
+var vals=dvs.map(function(d){return(AR.hy[d]||{})[hr]||0;});
+var sum=vals.reduce(function(a,b){return a+b;},0);
+h+='<tr><td>'+hr+'</td>'+vals.map(function(v){return'<td>'+(v||'-')+'</td>';}).join('')+'<td><strong>'+sum+'</strong></td></tr>';
+});
+document.getElementById('tH').innerHTML=h+'</tbody></table>';
+}
+
+function rT2(){if(!AR)return;rMu(AR.m1,document.getElementById('f2d').value,+document.getElementById('f2m').value,'chM1','tM1');}
+function rT3(){if(!AR)return;rMu(AR.m2,document.getElementById('f3d').value,+document.getElementById('f3m').value,'chM2','tM2');}
+
+function rMu(data,sd,mn,cid,tid){
+var f=data.filter(function(r){return r.mx>=mn;});
+if(sd!=='ALL')f=f.filter(function(r){return r.dv===sd;});
+var dvs=[...new Set(f.map(function(r){return r.dv;}))].sort();
+var bd={};
+dvs.forEach(function(d){bd[d]={2:0,3:0,4:0,5:0};});
+f.forEach(function(r){var k=Math.min(r.mx,5);if(bd[r.dv])bd[r.dv][k]++;});
+var lbls=[2,3,4,5].filter(function(n){return n>=mn;});
+var clrs={2:'#35c48a',3:'#e8912d',4:'#ef5a6f',5:'#9d7bea'};
+dC(cid);
+if(dvs.length>0){
+CH[cid]=new Chart(document.getElementById(cid).getContext('2d'),{
+type:'bar',
+data:{
+labels:dvs,
+datasets:lbls.map(function(n){
+return{
+label:n+'x vyskyt',
+data:dvs.map(function(d){return bd[d][n]||0;}),
+backgroundColor:clrs[n]+'99',
+borderColor:clrs[n],
+borderWidth:1
+};
+})
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{labels:{color:'#e8ebf1'}}},
+scales:{
+x:{ticks:{color:'#8892a3'},grid:{color:'#232a37'}},
+y:{ticks:{color:'#8892a3'},grid:{color:'#232a37'},beginAtZero:true}
+}
+}
+});
+}
+var h='<table><thead><tr><th>Ciarovy kod</th><th>Divertor</th><th>Max vyskytov</th><th>Okno od</th><th>Okno do</th><th>Celkom</th></tr></thead><tbody>';
+if(f.length===0){
+h+='<tr><td colspan="6" style="text-align:center;color:#8892a3;font-family:Inter,sans-serif">Ziadne zaznamy</td></tr>';
+}else{
+f.forEach(function(r){
+h+='<tr><td>'+r.bc+'</td><td>'+r.dv+'</td><td><span class="b'+Math.min(r.mx,5)+'">'+r.mx+'x</span></td><td>'+fDT(r.ws)+'</td><td>'+fDT(r.we)+'</td><td>'+r.tot+'</td></tr>';
+});
+}
+document.getElementById(tid).innerHTML=h+'</tbody></table>';
+}
+
+function rT4(){
+if(!pD.length)return;
+var s=document.getElementById('f4s').value.toLowerCase();
+var sd=document.getElementById('f4d').value;
+var lim=+document.getElementById('f4l').value;
+var f=pD;
+if(s)f=f.filter(function(r){return r.bc.toLowerCase().indexOf(s)>=0;});
+if(sd!=='ALL')f=f.filter(function(r){return r.dv===sd;});
+f=f.slice(0,lim);
+var h='<table><thead><tr><th>#</th><th>Ciarovy kod</th><th>Divertor</th><th>Cas prujezdu</th></tr></thead><tbody>';
+f.forEach(function(r,i){
+h+='<tr><td>'+(i+1)+'</td><td>'+r.bc+'</td><td>'+r.dv+'</td><td>'+fDT(r.ts)+'</td></tr>';
+});
+document.getElementById('tD').innerHTML=h+'</tbody></table>';
+}
+
+function expCSV(type){
+var rows=[],fn='';
+if(type==='hourly'){
+var dvs=Object.keys(AR.hy).sort();
+var allH=[...new Set(dvs.reduce(function(acc,d){return acc.concat(Object.keys(AR.hy[d]));},[])) ].sort();
+rows.push(['Hodina'].concat(dvs).concat(['Spolu']));
+allH.forEach(function(h){
+var vals=dvs.map(function(d){return(AR.hy[d]||{})[h]||0;});
+rows.push([h].concat(vals).concat([vals.reduce(function(a,b){return a+b;},0)]));
+});
+fn='prechody_za_hodinu.csv';
+}else if(type==='m1h'){
+rows.push(['Ciarovy kod','Divertor','Max vyskytov','Okno od','Okno do','Celkom']);
+AR.m1.forEach(function(r){rows.push([r.bc,r.dv,r.mx,fDT(r.ws),fDT(r.we),r.tot]);});
+fn='viacnasobne_1h.csv';
+}else if(type==='m2h'){
+rows.push(['Ciarovy kod','Divertor','Max vyskytov','Okno od','Okno do','Celkom']);
+AR.m2.forEach(function(r){rows.push([r.bc,r.dv,r.mx,fDT(r.ws),fDT(r.we),r.tot]);});
+fn='viacnasobne_2h.csv';
+}else{
+rows.push(['Ciarovy kod','Divertor','Cas prujezdu']);
+pD.forEach(function(r){rows.push([r.bc,r.dv,fDT(r.ts)]);});
+fn='surovne_data.csv';
+}
+var csv='\uFEFF'+rows.map(function(r){
+return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(';');
+}).join('\n');
+var a=document.createElement('a');
+a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+a.download=fn;
+a.click();
+}
+
+function loadDemo(){
+var demo='Ciarovy kod\tStanice/cidlo\tCas prujezdu\n'+
+'100001\tDIV_01\t15.01.2024 06:01:00\n'+
+'100002\tDIV_01\t15.01.2024 06:05:00\n'+
+'100003\tDIV_02\t15.01.2024 06:10:00\n'+
+'100001\tDIV_01\t15.01.2024 06:20:00\n'+
+'100004\tDIV_02\t15.01.2024 06:25:00\n'+
+'100001\tDIV_01\t15.01.2024 06:40:00\n'+
+'100005\tDIV_03\t15.01.2024 07:00:00\n'+
+'100002\tDIV_02\t15.01.2024 07:05:00\n'+
+'100001\tDIV_01\t15.01.2024 07:10:00\n'+
+'100006\tDIV_03\t15.01.2024 07:15:00\n'+
+'100003\tDIV_01\t15.01.2024 07:20:00\n'+
+'100007\tDIV_02\t15.01.2024 07:30:00\n'+
+'100001\tDIV_02\t15.01.2024 07:45:00\n'+
+'100008\tDIV_03\t15.01.2024 08:00:00\n'+
+'100002\tDIV_01\t15.01.2024 08:10:00\n'+
+'100009\tDIV_02\t15.01.2024 08:20:00\n'+
+'100001\tDIV_03\t15.01.2024 08:30:00\n'+
+'100010\tDIV_01\t15.01.2024 08:40:00\n'+
+'100003\tDIV_03\t15.01.2024 08:50:00\n'+
+'100002\tDIV_02\t15.01.2024 09:00:00';
+document.getElementById('ta').value=demo;
+processPaste();
+}
+
+/* ---- Persistencia: posledny dataset sa uklada do IndexedDB v tomto prehliadaci ---- */
+(function(){
+var DBN='divertory',STO='state',KEY='last',restoring=false;
+function openDb(cb){try{var r=indexedDB.open(DBN,1);r.onupgradeneeded=function(){r.result.createObjectStore(STO);};r.onsuccess=function(){cb(r.result);};r.onerror=function(){cb(null);};}catch(e){cb(null);}}
+function save(analysed){
+if(restoring||!hdr.length)return;
+var rec={hdr:hdr,rD:rD,cols:{cB:document.getElementById('cB').value,cD:document.getElementById('cD').value,cT:document.getElementById('cT').value},fName:document.getElementById('fName').textContent,analysed:!!analysed,savedAt:Date.now()};
+openDb(function(d){if(!d)return;try{var tx=d.transaction(STO,'readwrite');tx.objectStore(STO).put(rec,KEY);tx.oncomplete=function(){d.close();};tx.onabort=function(){d.close();setSt(document.getElementById('st').textContent+' | POZOR: data sa nepodarilo ulozit (limit uloziska).');};}catch(e){}});
+}
+function wipe(){openDb(function(d){if(!d)return;try{var tx=d.transaction(STO,'readwrite');tx.objectStore(STO).delete(KEY);tx.oncomplete=function(){d.close();};}catch(e){}});}
+function restore(){
+openDb(function(d){if(!d)return;var q;try{q=d.transaction(STO,'readonly').objectStore(STO).get(KEY);}catch(e){return;}
+q.onsuccess=function(){d.close();var s=q.result;if(!s||!s.hdr||!s.rD||!s.rD.length)return;
+restoring=true;
+try{hdr=s.hdr;rD=s.rD;setupCols();['cB','cD','cT'].forEach(function(id){if(s.cols&&s.cols[id]!=null)document.getElementById(id).value=s.cols[id];});
+document.getElementById('fName').textContent=s.fName||'';
+if(s.analysed)runAnalysis();
+setSt(document.getElementById('st').textContent+' | Obnovene z ulozenych dat ('+fDT(new Date(s.savedAt))+')');
+}finally{restoring=false;}};});
+}
+var _parse=parseArray,_run=runAnalysis,_clear=clearAll,_file=processFile;
+parseArray=function(a){_parse(a);if(a.length>=2)save(false);};
+runAnalysis=function(){_run();if(pD.length)save(true);};
+clearAll=function(){_clear();wipe();};
+processPaste=(function(o){return function(){document.getElementById('fName').textContent='';o();};})(processPaste);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',restore);else restore();
+})();
+
+/* ---- Zdielane ulozisko: datasety na serveri (Vercel Blob cez /api/datasets), chranene heslom ---- */
+var SH_MAX=4.2*1024*1024;
+function shMsg(t,bad){var e=document.getElementById('shMsg');e.textContent=t||'';e.style.color=bad?'var(--alert)':'var(--muted)';}
+function shView(authed){document.getElementById('shLogin').classList.toggle('hidden',authed);document.getElementById('shMain').classList.toggle('hidden',!authed);}
+async function shGz(str){var s=new Blob([str]).stream().pipeThrough(new CompressionStream('gzip'));return new Uint8Array(await new Response(s).arrayBuffer());}
+async function shGunz(buf){var s=new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'));return await new Response(s).text();}
+function shSize(n){return n<1048576?(n/1024).toFixed(0)+' kB':(n/1048576).toFixed(2)+' MB';}
+async function shRefresh(){
+try{
+var r=await fetch('/api/datasets',{credentials:'same-origin'});
+if(r.status===401){shView(false);return;}
+if(!r.ok)throw new Error((await r.json().catch(function(){return{};})).error||('HTTP '+r.status));
+var items=await r.json();shView(true);
+var tb=document.getElementById('shList');tb.innerHTML='';
+if(!items.length){var tr0=document.createElement('tr');var td0=document.createElement('td');td0.colSpan=5;td0.textContent='Ziadne ulozene datasety.';td0.style.color='var(--muted)';tr0.appendChild(td0);tb.appendChild(tr0);return;}
+items.forEach(function(it){
+var tr=document.createElement('tr');
+[it.name,it.rows.toLocaleString(),shSize(it.size),fDT(new Date(it.savedAt))].forEach(function(v){var td=document.createElement('td');td.textContent=v;tr.appendChild(td);});
+var td=document.createElement('td');td.style.whiteSpace='nowrap';td.style.textAlign='right';
+var b1=document.createElement('button');b1.className='btn bp btn-sm';b1.textContent='Nacitat';b1.onclick=function(){shLoad(it);};
+var b2=document.createElement('button');b2.className='btn bs btn-sm';b2.textContent='Zmazat';b2.style.marginLeft='6px';b2.onclick=function(){shDelete(it);};
+td.appendChild(b1);td.appendChild(b2);tr.appendChild(td);tb.appendChild(tr);
+});
+}catch(e){shMsg('Server uloziska nie je dostupny: '+e.message,true);}
+}
+async function shLogin(){
+var pw=document.getElementById('shPw').value;if(!pw)return;
+shMsg('Prihlasujem...');
+try{
+var r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw}),credentials:'same-origin'});
+if(r.status===401){shMsg('Nespravne heslo.',true);return;}
+if(!r.ok)throw new Error((await r.json().catch(function(){return{};})).error||('HTTP '+r.status));
+document.getElementById('shPw').value='';shMsg('');await shRefresh();
+}catch(e){shMsg('Prihlasenie zlyhalo: '+e.message,true);}
+}
+async function shLogout(){try{await fetch('/api/login',{method:'DELETE',credentials:'same-origin'});}catch(e){}shView(false);shMsg('');}
+function shCols(){return{cB:document.getElementById('cB').value,cD:document.getElementById('cD').value,cT:document.getElementById('cT').value};}
+async function shSave(){
+if(!hdr.length||!rD.length){shMsg('Najprv nacitajte data (subor alebo vlozenie).',true);return;}
+var name=document.getElementById('shName').value.trim()||document.getElementById('fName').textContent.trim()||('Dataset '+fDT(new Date()));
+var btn=document.getElementById('shSaveBtn');btn.disabled=true;shMsg('Komprimujem a ukladam...');
+try{
+var c=shCols(),reduced=false;
+var gz=await shGz(JSON.stringify({v:1,hdr:hdr,rD:rD,cols:c,analysed:!!AR}));
+if(gz.length>SH_MAX){
+/* prilis velke: ulozime len 3 priradene stlpce */
+var ix=[+c.cB,+c.cD,+c.cT];
+gz=await shGz(JSON.stringify({v:1,hdr:ix.map(function(i){return hdr[i];}),rD:rD.map(function(r){return ix.map(function(i){return r[i];});}),cols:{cB:'0',cD:'1',cT:'2'},analysed:!!AR}));
+reduced=true;
+}
+if(gz.length>SH_MAX){shMsg('Dataset je prilis velky aj po kompresii ('+shSize(gz.length)+', limit '+shSize(SH_MAX)+'). Rozdelte ho na mensie obdobia.',true);return;}
+var r=await fetch('/api/datasets?name='+encodeURIComponent(name)+'&rows='+rD.length,{method:'PUT',headers:{'Content-Type':'application/octet-stream'},body:gz,credentials:'same-origin'});
+if(r.status===401){shView(false);shMsg('Prihlasenie vyprsalo.',true);return;}
+if(!r.ok)throw new Error((await r.json().catch(function(){return{};})).error||('HTTP '+r.status));
+document.getElementById('shName').value='';
+await shRefresh();
+shMsg('Ulozene: "'+name+'" ('+rD.length.toLocaleString()+' riadkov, '+shSize(gz.length)+')'+(reduced?' - kvoli velkosti ulozene len 3 priradene stlpce.':'.'));
+}catch(e){shMsg('Ulozenie zlyhalo: '+e.message,true);}
+finally{btn.disabled=false;}
+}
+async function shLoad(it){
+shMsg('Nacitavam "'+it.name+'"...');
+try{
+var r=await fetch('/api/datasets?id='+encodeURIComponent(it.id),{credentials:'same-origin'});
+if(r.status===401){shView(false);shMsg('Prihlasenie vyprsalo.',true);return;}
+if(!r.ok)throw new Error((await r.json().catch(function(){return{};})).error||('HTTP '+r.status));
+var s=JSON.parse(await shGunz(await r.arrayBuffer()));
+if(!s||!Array.isArray(s.hdr)||!Array.isArray(s.rD))throw new Error('neplatny format');
+document.getElementById('ta').value='';document.getElementById('fileInput').value='';
+document.getElementById('res').classList.add('hidden');AR=null;pD=[];
+document.getElementById('fName').textContent=it.name;
+parseArray([s.hdr].concat(s.rD));
+['cB','cD','cT'].forEach(function(id){if(s.cols&&s.cols[id]!=null)document.getElementById(id).value=s.cols[id];});
+if(s.analysed)runAnalysis();
+shMsg('Nacitane zo servera: "'+it.name+'".');
+}catch(e){shMsg('Nacitanie zlyhalo: '+e.message,true);}
+}
+async function shDelete(it){
+if(!confirm('Zmazat dataset "'+it.name+'" pre vsetkych?'))return;
+try{
+var r=await fetch('/api/datasets?id='+encodeURIComponent(it.id),{method:'DELETE',credentials:'same-origin'});
+if(r.status===401){shView(false);return;}
+if(!r.ok&&r.status!==404)throw new Error('HTTP '+r.status);
+await shRefresh();shMsg('Zmazane: "'+it.name+'".');
+}catch(e){shMsg('Zmazanie zlyhalo: '+e.message,true);}
+}
+if(typeof CompressionStream==='undefined'){shMsg('Tento prehliadac nepodporuje kompresiu (CompressionStream) - zdielane ulozisko nie je dostupne.',true);}else{shRefresh();}
+</script>
+</body>
+</html>
